@@ -1,14 +1,14 @@
 # ds-e2e
 Docker images are available at
 
-https://hub.docker.com/r/sanishmahadik/s3-success/
+https://hub.docker.com/r/sanishmahadik/object-store-success/
 
-https://hub.docker.com/r/sanishmahadik/s3-failure/
+https://hub.docker.com/r/sanishmahadik/object-store-failure/
 
 ## Build Docker Image 
 
 ```
-docker build -t sanishmahadik/s3-failure:latest .
+docker build -t sanishmahadik/object-store-failure:latest .
 ```
 
 ## Specify the AWS env. variables
@@ -20,5 +20,5 @@ AWS_ACCESS_KEY_ID=<key>
 
 ## Run locally
 ```
-docker run -t -i --env-file env.list  sanishmahadik/s3-failure:latest
+docker run -t -i --env-file env.list  sanishmahadik/object-store-failure:latest
 ```

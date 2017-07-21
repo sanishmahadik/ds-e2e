@@ -4,5 +4,5 @@ RUN apk -v --update add \
         py-pip \
         && \
     pip install --upgrade awscli
-ADD s3-success.sh /root
-CMD ["/bin/sh", "/root/s3-success.sh"]
+ADD object-store-success.sh /root
+CMD ["/bin/sh", "/root/object-store-success.sh"]
