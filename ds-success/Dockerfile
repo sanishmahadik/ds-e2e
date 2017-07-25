@@ -4,5 +4,5 @@ RUN apk -v --update add \
         py-pip \
         && \
     pip install --upgrade awscli
-ADD object-store-failure.sh /root
-CMD ["/bin/sh", "/root/object-store-failure.sh"]
+ADD ds-success.sh /root
+CMD ["/bin/sh", "/root/ds-success.sh"]
