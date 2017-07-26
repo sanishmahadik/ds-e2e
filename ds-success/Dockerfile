@@ -1,6 +1,7 @@
 FROM alpine:3.5
 RUN apk -v --update add \
         jq \
+        curl \
         python \
         py-pip \
         && \

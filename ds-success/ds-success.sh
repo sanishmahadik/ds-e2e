@@ -1,5 +1,16 @@
 #!/bin/bash
 
+
+echo "Getting credentials for the TaskRoleARN"
+echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+echo "aws cli version"
+aws --version
+
+echo "printing sysctl settings and ifconfig"
+sysctl net.ipv4.ip_forward
+ifconfig
+#curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+
 echo "Running ds-success scenario"
 echo "Setting signature version to v4"
 aws configure set s3.signature_version s3v4
@@ -38,8 +49,8 @@ case ${TEST_SCENARIO} in
   "receive-message")
     #receive message
     echo "receive-message: q1=${SQS_Q1} q2=${SQS_Q2}"
-    MSG1=$(sudo aws sqs  receive-message --queue-url ${SQS_Q1} | jq -r '.Messages[].Body')
-    MSG2=$(sudo aws sqs  receive-message --queue-url ${SQS_Q2} | jq -r '.Messages[].Body')
+    MSG1=$(aws sqs  receive-message --queue-url ${SQS_Q1} | jq -r '.Messages[].Body')
+    MSG2=$(aws sqs  receive-message --queue-url ${SQS_Q2} | jq -r '.Messages[].Body')
     if [ \( "$MSG1" != "$MSG" \)  -o \( "$MSG2" != "$MSG" \) ]; then
       exit 2
     fi
