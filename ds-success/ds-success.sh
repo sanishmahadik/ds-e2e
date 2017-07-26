@@ -19,21 +19,25 @@ echo "This is a test file" > ${UPLOAD_FILE}
 case ${TEST_SCENARIO} in
   "upload-file")
     # upload file
+    echo "upload-file: file=${UPLOAD_FILE} s3path=${S3_URI}"
     aws s3 cp ${UPLOAD_FILE} s3://${S3_URI}/${UPLOAD_FILE}
     ;;
   "download-file")
     # download file
+    echo "download-file: s3path=${S3_URI}/${UPLOAD_FILE}"
     aws s3 cp s3://${S3_URI}/${UPLOAD_FILE} ${DOWNLOAD_FILE} && \
     # content should match
     diff ${UPLOAD_FILE} ${DOWNLOAD_FILE}
     ;;
   "send-message")
     # send message
+    echo "send-message: q1=${SQS_Q1} q2=${SQS_Q2}"
     aws sqs send-message --queue-url ${SQS_Q1} --message-body ${MSG} && \
     aws sqs send-message --queue-url ${SQS_Q2} --message-body ${MSG}
     ;;
   "receive-message")
     #receive message
+    echo "receive-message: q1=${SQS_Q1} q2=${SQS_Q2}"
     MSG1=$(sudo aws sqs  receive-message --queue-url ${SQS_Q1} | jq -r '.Messages[].Body')
     MSG2=$(sudo aws sqs  receive-message --queue-url ${SQS_Q2} | jq -r '.Messages[].Body')
     if [ \( "$MSG1" != "$MSG" \)  -o \( "$MSG2" != "$MSG" \) ]; then
