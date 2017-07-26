@@ -1,55 +1,43 @@
 #!/bin/bash
 
-echo "Running object-store-success scenario"
+echo "Running ds-success scenario"
 echo "Setting signature version to v4"
 aws configure set s3.signature_version s3v4
 
-# hard-code the bucket-name for now
-BUCKET_NAME=sanish-avanti-test
-TESTNAME="dummy"
-
 UPLOAD_FILE=upload.txt
 DOWNLOAD_FILE=download.txt
+MSG="This is a SQS test message"
 
-function should_fail() {
-echo "testing for failure: $1"
-bash -c "$1"
+echo "Got AVANTI_DATASERVICE_JSON=${AVANTI_DATASERVICE_JSON}"
 
-if [ "$?" -eq "0" ]; then
-  echo "Expected failure for $1; instead succeeded"
-  exit 1
-fi
-return 0
-}
-
-function should_succeed() {
-echo "testing for success: $1"
-bash -c "$1"
-
-if [ "$?" -ne "0" ]; then
-  echo "Expected success for $1; instead failed"
-  exit 2
-fi
-return 0
-}
+S3_URI=$(echo -n ${AVANTI_DATASERVICE_JSON} | jq -r '.[].properties[].value' | grep s3 | cut -d '/' -f 4,5)
+SQS_Q1=$(echo -n ${AVANTI_DATASERVICE_JSON} | jq -r '.[].properties[].value' | grep "https://sqs" | head -1)
+SQS_Q2=$(echo -n ${AVANTI_DATASERVICE_JSON} | jq -r '.[].properties[].value' | grep "https://sqs" | tail -1)
 
 echo "This is a test file" > ${UPLOAD_FILE}
 
-case ${TESTNAME} in
-  "dummy")
-    aws s3 ls
-    ;;
-  "check-upload-download")
+case ${TEST_SCENARIO} in
+  "upload-file")
     # upload file
-    should_succeed "aws s3 cp ${UPLOAD_FILE} s3://${BUCKET_NAME}/${UPLOAD_FILE}"
-    # download file
-    should_succeed "aws s3 cp s3://${BUCKET_NAME}/${UPLOAD_FILE} ${DOWNLOAD_FILE}"
-    # content should match
-    should_succeed "diff ${UPLOAD_FILE} ${DOWNLOAD_FILE}"
+    aws s3 cp ${UPLOAD_FILE} s3://${S3_URI}/${UPLOAD_FILE}
     ;;
-  "bad-perms-failure")
-    # not able to upload even with valid command
-    should_fail "aws s3 cp ${UPLOAD_FILE} s3://${BUCKET_NAME}/${UPLOAD_FILE}"
-    # not able to download
-    should_fail "aws s3 cp s3://${BUCKET_NAME}/${UPLOAD_FILE} ${DOWNLOAD_FILE}"
+  "download-file")
+    # download file
+    aws s3 cp s3://${S3_URI}/${UPLOAD_FILE} ${DOWNLOAD_FILE} && \
+    # content should match
+    diff ${UPLOAD_FILE} ${DOWNLOAD_FILE}
+    ;;
+  "send-message")
+    # send message
+    aws sqs send-message --queue-url ${SQS_Q1} --message-body ${MSG} && \
+    aws sqs send-message --queue-url ${SQS_Q2} --message-body ${MSG}
+    ;;
+  "receive-message")
+    #receive message
+    MSG1=$(sudo aws sqs  receive-message --queue-url ${SQS_Q1} | jq -r '.Messages[].Body')
+    MSG2=$(sudo aws sqs  receive-message --queue-url ${SQS_Q2} | jq -r '.Messages[].Body')
+    if [ \( "$MSG1" != "$MSG" \)  -o \( "$MSG2" != "$MSG" \) ]; then
+      exit 2
+    fi
+    ;;
 esac

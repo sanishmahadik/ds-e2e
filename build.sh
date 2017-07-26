@@ -9,7 +9,7 @@ FAIL_BUILD=${PREFIX}/${FAIL_DIR}:latest
 
 echo "************* Building ${PASS_BUILD} *****************"
 cd $PASS_DIR 
-docker build -t $PASS_BUILD . 
+docker build -t $PASS_BUILD .
 docker run -t -i --env-file env.list  $PASS_BUILD 
 docker push ${PASS_BUILD}
 cd -
