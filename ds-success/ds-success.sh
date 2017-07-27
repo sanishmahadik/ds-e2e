@@ -1,15 +1,9 @@
 #!/bin/bash
 
+set -e
 
-echo "Getting credentials for the TaskRoleARN"
-echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
-echo "aws cli version"
-aws --version
-
-echo "printing sysctl settings and ifconfig"
-sysctl net.ipv4.ip_forward
-ifconfig
-#curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+#echo "Getting credentials for the TaskRoleARN"
+#echo $AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 
 echo "Running ds-success scenario"
 echo "Setting signature version to v4"
