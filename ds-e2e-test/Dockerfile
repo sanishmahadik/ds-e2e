@@ -8,7 +8,7 @@ RUN apk -v --update add \
         nodejs \
         && \
     pip install --upgrade awscli
-ADD ds-success.sh /root
-CMD ["/bin/sh", "/root/ds-success.sh"]
-# RUN npm install -g http-server
-# CMD ["http-server", "-p", "8000"]
+ADD ds-test.sh /root
+CMD ["/bin/bash", "/root/ds-test.sh"]
+#RUN npm install -g http-server
+#CMD ["http-server", "-p", "8000"]
